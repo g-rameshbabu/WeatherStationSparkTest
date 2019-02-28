@@ -8,9 +8,9 @@ import org.apache.spark.sql.SparkSession;
 
 @UtilityClass
 public class SparkContext<T> {  
-    private static JavaSparkContext javaSparkContext;  
-    private static SparkSession sparkSession;  
-    private static SQLContext sqlContext;  
+    private transient static JavaSparkContext javaSparkContext;
+    private transient static SparkSession sparkSession;
+    private transient static SQLContext sqlContext;
       
   
     public JavaSparkContext javaSparkContext(final SparkConf sparkConf) {

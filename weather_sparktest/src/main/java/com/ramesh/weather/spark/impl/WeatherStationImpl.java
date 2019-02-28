@@ -2,7 +2,7 @@ package com.ramesh.weather.spark.impl;
 
 import com.ramesh.weather.spark.WeatherStation;
 import com.ramesh.weather.spark.beans.WeatherStationData;
-import com.ramesh.weather.spark.helper.WeatherStationServiceHelper;
+import com.ramesh.weather.spark.helper.WeatherStationDataFrameHelper;
 import com.ramesh.weather.spark.utils.SparkContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -28,7 +28,7 @@ public class WeatherStationImpl implements WeatherStation {
     public static final String URL_WEATHER_STATIONDATA = "https://www.metoffice.gov.uk/pub/data/weather/uk/climate/stationdata/";
     public static final String WEATHER_STATION_DATA = "weatherStationData";
     private transient SQLContext sqlContext;
-    //Few stations commented as these are having some special data,which needs be handled.
+    //TODO Few stations commented as these are having some special data,which needs be handled.
     private static final String[] stationsArray = {"aberporth", "armagh", "ballypatrick", "bradford", "braemar", "camborne", "cambridge", "cardiff",
             "chivenor", "cwmystwyth", "dunstaffnage", "durham", "eastbourne", "eskdalemuir", "heathrow",
             "hurn", "lerwick", "leuchars"/*, "lowestoft"*/, "manston", "nairn", "newtonrigg",
@@ -46,9 +46,9 @@ public class WeatherStationImpl implements WeatherStation {
                 BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
                 //At the moment skipping to 8 ,this logic can be changed to find changing header length and skip accordingly
                 try (Stream<String> linesStream = Files.lines(sourceFile.toPath()).skip(8)) {
+                    //parsing and saving into files
                     linesStream.filter(line -> !(line.contains("Site Closed") || line.contains("Site closed"))).forEach(lineData -> {
                         try {
-                            //if (!(lineData.contains("Site Closed") || lineData.contains("Site closed"))) {
                             bufferedWriter.write(station);
                             bufferedWriter.write(",");
                             String replacedString = lineData.replaceAll("\\s+", ",").replaceFirst(",", "").replaceAll("\\*", "").replaceAll("\\#", "").replaceAll("Provisional", "");
@@ -141,12 +141,12 @@ public class WeatherStationImpl implements WeatherStation {
         sqlContext.cacheTable(WEATHER_STATION_DATA);
         Dataset<Row> result = sqlContext.sql("SELECT * FROM weatherStationData");
         try {
-            WeatherStationServiceHelper.rankStationsByOnline(result);
-            WeatherStationServiceHelper.rankStationsByRainfall(result);
-            WeatherStationServiceHelper.rankStationsBySunshine(result);
-            WeatherStationServiceHelper.displayWorstRainfall(result);
-            WeatherStationServiceHelper.displayBestSunshine(result);
-            WeatherStationServiceHelper.displayAllStationsAvgAcrossMay(result);
+            WeatherStationDataFrameHelper.rankStationsByOnline(result);
+            WeatherStationDataFrameHelper.rankStationsByRainfall(result);
+            WeatherStationDataFrameHelper.rankStationsBySunshine(result);
+            WeatherStationDataFrameHelper.displayWorstRainfall(result);
+            WeatherStationDataFrameHelper.displayBestSunshine(result);
+            WeatherStationDataFrameHelper.displayAllStationsAvgAcrossMay(result);
         } catch (Exception ex) {
             log.error("Exception occurred while processing the dataFrame");
         }
