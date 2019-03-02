@@ -10,7 +10,7 @@ import static org.apache.spark.sql.functions.*;
 
 //We can have constants for all these repeated columns
 @UtilityClass
-public class WeatherStationServiceHelper {
+public class WeatherStationDataFrameHelper {
     /**
      * Rank stations by how long they have online
      *
@@ -53,6 +53,7 @@ public class WeatherStationServiceHelper {
 
     /**
      * Display best sunshine of each station
+     * //TODO need to revisit the query for best sunshine
      *
      * @param weatherStationsData
      */
